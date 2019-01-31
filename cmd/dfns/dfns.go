@@ -25,6 +25,7 @@ func init() {
 
 func main() {
 	r := mux.NewRouter()
+	r.Use(middleware)
 
 	r.HandleFunc("/_readyz", readyz)
 	r.HandleFunc("/_healthz", healthz)
