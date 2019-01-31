@@ -2,12 +2,12 @@ package updatestatus
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 
 	store "github.com/auburnhacks/dfns/hackstorage"
+	"github.com/auburnhacks/dfns/util"
 )
 
 type Handler struct{}
@@ -36,10 +36,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	err = json.NewDecoder(r.Body).Decode(&d)
 	if err != nil {
-		log.Printf("error: %v", err)
-		http.Error(w,
-			fmt.Sprintf("cloud/update_status: error while decoding: %v", err),
-			http.StatusInternalServerError)
+		log.Printf("[ERROR] error while decoding: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(util.NewHTTPResponseErr(err))
 		return
 	}
 	defer r.Body.Close()
@@ -48,9 +47,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// perform userlinking
 		err := linkUser(d.UserID, d.LinkID, store)
 		if err != nil {
-			http.Error(w,
-				fmt.Sprintf("cloud/update_status: error: %v", err),
-				http.StatusInternalServerError)
+			log.Printf("[ERROR] error while linking user: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(util.NewHTTPResponseErr(err))
 			return
 		}
 		w.WriteHeader(http.StatusOK)
@@ -59,9 +58,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	err = store.AddAttendee(d.EventID, d.LinkID)
 	if err != nil {
-		http.Error(w,
-			fmt.Sprintf("cloud/update_status: error while adding attendee: %v", err),
-			http.StatusInternalServerError)
+		log.Printf("[ERROR] error while adding attendee: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(util.NewHTTPResponseErr(err))
 		return
 	}
 }

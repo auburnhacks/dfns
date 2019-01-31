@@ -2,12 +2,12 @@ package canattend
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 
 	store "github.com/auburnhacks/dfns/hackstorage"
+	"github.com/auburnhacks/dfns/util"
 )
 
 // Handler is a http handler
@@ -37,18 +37,18 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	err = json.NewDecoder(r.Body).Decode(&d)
 	if err != nil {
-		http.Error(w,
-			fmt.Sprintf("cloud/can_attend: error while decoding json: %v", err),
-			http.StatusInternalServerError)
+		log.Printf("[ERROR] %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(util.NewHTTPResponseErr(err))
 		return
 	}
 	defer r.Body.Close()
 	// check and see if the user can attend the event
 	ok, err = store.CanAttend(d.EventID, d.UserID)
 	if err != nil {
-		http.Error(w,
-			fmt.Sprintf("cloud/can_attend: error user cannot attend: %v", err),
-			http.StatusInternalServerError)
+		log.Printf("[ERROR] %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(util.NewHTTPResponseErr(err))
 		return
 	}
 	if !ok {
