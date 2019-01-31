@@ -1,4 +1,4 @@
 vendor/
-dfns
+./dfns
 dfns_linux
 docker-compose.yml
