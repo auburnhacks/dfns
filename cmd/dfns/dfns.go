@@ -44,7 +44,7 @@ func main() {
 		}
 	}()
 
-	log.Println("server started")
+	log.Printf("server started on %s", *addr)
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
