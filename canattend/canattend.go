@@ -2,6 +2,7 @@ package canattend
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -35,9 +36,15 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		UserID  int    `json:"user_id,omitempty"`
 	}
 
-	err = json.NewDecoder(r.Body).Decode(&d)
+	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Printf("[ERROR] %v", err)
+		log.Printf("[ERROR] error while reading bytes: %v", err)
+	}
+	defer r.Body.Close()
+
+	err = json.Unmarshal(b, &d)
+	if err != nil {
+		log.Printf("[ERROR] error while decoding: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(util.NewHTTPResponseErr(err))
 		return
