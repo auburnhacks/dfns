@@ -40,6 +40,7 @@ var (
 type Handler struct{}
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
 	bb, err := json.Marshal(allEvents)
 	if err != nil {
 		log.Fatal(err)

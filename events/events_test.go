@@ -13,7 +13,8 @@ func TestGetEvents(t *testing.T) {
 	req.Header.Add("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
-	GetEvents(rr, req)
+	h := &Handler{}
+	h.ServeHTTP(rr, req)
 
 	_, err := ioutil.ReadAll(rr.Result().Body)
 	if err != nil {
